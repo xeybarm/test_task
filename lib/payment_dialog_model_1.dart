@@ -1,122 +1,78 @@
 import 'package:flutter/material.dart';
 
-class PaymentDialog extends StatelessWidget {
-  PaymentDialog(
-      {Key? key,
-      required this.balance,
-      required this.totalPrice,
-      this.commandName = '',
-      required this.onCommandFunction,
-      this.commandButtonColor = Colors.blue})
-      : super(key: key);
+import 'pages/widgets/price_text.dart';
 
-  double balance;
-  double totalPrice;
+class PaymentDialog extends StatefulWidget {
+  const PaymentDialog({
+    Key? key,
+    this.commandName = '',
+    this.commandButtonColor = Colors.blue,
+  }) : super(key: key);
+
   final String commandName;
-
-  Function onCommandFunction;
   final Color commandButtonColor;
 
   @override
+  State<PaymentDialog> createState() => _PaymentDialogState();
+}
+
+double balance = 12.0;
+double price = 5.0;
+
+class _PaymentDialogState extends State<PaymentDialog> {
+  @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-        title: Column(
-          children: [
-            RichText(
-              text: TextSpan(
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Colors.black,
-                ),
-                children: <TextSpan>[
-                  const TextSpan(text: 'Balance: '),
-                  TextSpan(
-                    text: '$balance \$',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      color: Colors.green,
-                    ),
-                  )
-                ],
-              ),
-            ),
-            RichText(
-              text: TextSpan(
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Colors.black,
-                ),
-                children: <TextSpan>[
-                  const TextSpan(text: 'Total Price: '),
-                  TextSpan(
-                    text: '$totalPrice \$',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      color: Colors.red,
-                    ),
-                  )
-                ],
-              ),
-            ),
-            RichText(
-              text: TextSpan(
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Colors.black,
-                ),
-                children: <TextSpan>[
-                  const TextSpan(text: 'Commision: '),
-                  TextSpan(
-                    text: '0.0 \$',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      color: Colors.red,
-                    ),
-                  )
-                ],
-              ),
-            ),
-            const Divider(
-              thickness: 1,
-            ),
-            RichText(
-              text: TextSpan(
-                style: const TextStyle(
-                  fontSize: 15,
-                  color: Colors.black,
-                ),
-                children: <TextSpan>[
-                  const TextSpan(text: 'New balance: '),
-                  TextSpan(
-                    text: '${balance - totalPrice} \$',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      color: Colors.red,
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              onCommandFunction();
-            },
-            child: Text(
-              commandName,
-              style: TextStyle(color: commandButtonColor, fontSize: 12),
-            ),
+    return StatefulBuilder(builder: (context, setState) {
+      return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
           ),
-          TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancel',
-                  style: TextStyle(
-                      color: Color.fromARGB(255, 0, 0, 0), fontSize: 12)))
-        ]);
+          title: Column(
+            children: [
+              PriceText(
+                title: 'Balance: ',
+                value: '$balance \$',
+              ),
+              PriceText(
+                title: 'Total Price: ',
+                value: '$price \$',
+              ),
+              const PriceText(
+                title: 'Commision: ',
+                value: '0.0 \$',
+              ),
+              const Divider(thickness: 1),
+              PriceText(
+                title: 'New balance: ',
+                value: '${balance - price} \$',
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                if (balance > price) {
+                  setState(() {
+                    balance = balance - price;
+                  });
+                } else {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(const SnackBar(content: Text('error')));
+                }
+              },
+              child: Text(
+                widget.commandName,
+                style:
+                    TextStyle(color: widget.commandButtonColor, fontSize: 12),
+              ),
+            ),
+            TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Cancel',
+                    style: TextStyle(color: Colors.black, fontSize: 12)))
+          ]);
+    });
   }
 }
